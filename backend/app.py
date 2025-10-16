@@ -4,7 +4,6 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 from dotenv import load_dotenv
 
-# --- Configuration ---
 load_dotenv() 
 
 api_key = os.getenv("GEMINI_API_KEY")
@@ -13,16 +12,12 @@ if not api_key:
 
 genai.configure(api_key=api_key)
 
-# --- Use the standard, stable model name ---
-# (Corrected from 'gemini-2.5-pro' to 'gemini-pro')
 model = genai.GenerativeModel('gemini-2.5-pro')
 
 # --- Flask App Initialization ---
 app = Flask(__name__)
 CORS(app) 
 
-# --- LLM Prompt Template ---
-# THIS SECTION IS NOW UPDATED
 def create_prompt(symptoms):
     """Creates a structured prompt for the LLM."""
     prompt = f"""
