@@ -25,7 +25,7 @@ document.getElementById('symptom-form').addEventListener('submit', async functio
     precautionsContent.innerHTML = '';
 
     try {
-        const response = await fetch('/api/symptom_check', {
+        const response = await fetch('https://symptom-checker-api.onrender.com/api/symptom_check', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ symptoms: symptoms }),
