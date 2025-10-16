@@ -1,9 +1,10 @@
 import os
 import google.generativeai as genai
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_from_directory # Import send_from_directory
 from flask_cors import CORS
 from dotenv import load_dotenv
 
+# --- Configuration ---
 load_dotenv() 
 
 api_key = os.getenv("GEMINI_API_KEY")
@@ -11,13 +12,14 @@ if not api_key:
     raise ValueError("GEMINI_API_KEY environment variable not set.")
 
 genai.configure(api_key=api_key)
-
 model = genai.GenerativeModel('gemini-2.5-pro')
 
 # --- Flask App Initialization ---
-app = Flask(__name__)
+# NEW: Tell Flask where to find the static files (your frontend folder)
+app = Flask(__name__, static_folder='../frontend', static_url_path='')
 CORS(app) 
 
+# --- LLM Prompt Template ---
 def create_prompt(symptoms):
     """Creates a structured prompt for the LLM."""
     prompt = f"""
@@ -44,7 +46,7 @@ def create_prompt(symptoms):
     """
     return prompt
 
-# --- API Endpoint ---
+# --- API Endpoint (Stays the same) ---
 @app.route('/api/symptom_check', methods=['POST'])
 def symptom_check():
     """API endpoint to process symptom checks."""
@@ -63,6 +65,18 @@ def symptom_check():
     except Exception as e:
         print(f"An error occurred: {e}")
         return jsonify({"error": "An internal server error occurred."}), 500
+
+# --- NEW: Route to serve the website ---
+@app.route('/')
+def serve_index():
+    """Serves the index.html file from the frontend folder."""
+    return send_from_directory(app.static_folder, 'index.html')
+
+# --- NEW: Route to serve other frontend files (CSS, JS) ---
+@app.route('/<path:path>')
+def serve_static_files(path):
+    """Serves static files like style.css and script.js."""
+    return send_from_directory(app.static_folder, path)
 
 # --- Main Entry Point ---
 if __name__ == '__main__':
